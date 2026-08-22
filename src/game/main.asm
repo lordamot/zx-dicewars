@@ -57,7 +57,7 @@ title_screen:
 
     ; big logo, each letter in its own bright colour
     ld b,1
-    ld c,7
+    ld c,3
     call draw_logo
 
     ; a row of dice showing the eight player colours
@@ -123,11 +123,11 @@ title_screen:
     call print_str
     ld hl,s_start
     ld b,15
-    ld c,5
+    ld c,4
     call print_str
     ld hl,s_keys
     ld b,17
-    ld c,2
+    ld c,1
     call print_str
     ld hl,s_orig
     ld b,21
@@ -139,8 +139,8 @@ title_screen:
     call print_str
     ; highlight the start line
     ld b,15
-    ld c,5
-    ld d,22
+    ld c,4
+    ld d,24
     ld a,A_SELECT
     call fill_attr
 
@@ -178,12 +178,12 @@ title_values:
     ld a,(pmax)
     add a,'0'
     ld b,8
-    ld c,23
+    ld c,26
     call print_char
     ld a,(humans)
     add a,'0'
     ld b,10
-    ld c,23
+    ld c,26
     call print_char
     ld a,(music_on)
     or a
@@ -192,7 +192,7 @@ title_values:
     ld hl,s_on
 .mus:
     ld b,12
-    ld c,23
+    ld c,26
     jp print_str
 
 ; --- map preview: "play this map?" -----------------------------------------
@@ -646,7 +646,7 @@ draw_logo:
     inc c
     inc e
     ld a,e
-    cp 18
+    cp LOGO_CELLS
     jr nz,.lcol
     inc b
     ld a,(ge_row)
@@ -707,7 +707,7 @@ splash_prompt:
     call fill_attr
     ld hl,s_anykey
     ld b,23
-    ld c,9
+    ld c,6
     jp print_str
 
 ; hold the loading screen (already at #4000, put there by the BASIC
@@ -741,7 +741,7 @@ game_over_screen:
     call show_scr
     ld hl,s_gameover
     ld b,0
-    ld c,7
+    ld c,3
     ld a,%01000010                 ; bright red ink
     call banner2x
     call splash_prompt
@@ -766,17 +766,17 @@ win_screen:
     jr nc,.named
     ld hl,s_youwin
     ld b,0
-    ld c,9
+    ld c,6
     ld a,e
     call banner2x
     jr .prompt
 .named:
     ld a,(winner)
     add a,'1'
-    ld (s_pwins+7),a
+    ld (s_pwins+6),a               ; "ИГРОК _ ПОБЕДИЛ"
     ld hl,s_pwins
     ld b,0
-    ld c,3
+    ld c,1
     ld a,e
     call banner2x
 .prompt:
@@ -803,29 +803,3 @@ wait_anykey:
     or e
     jr z,.wait
     ret
-
-; --- strings ---------------------------------------------------------------
-
-s_logo:       DB "DICE WARS",0
-s_players:    DB "PLAYERS (KEYS 2-8):",0
-s_humans:     DB "HUMANS  (KEY H)   :",0
-s_music:      DB "MUSIC   (KEY S)   :",0
-s_on:         DB "ON ",0
-s_off:        DB "OFF",0
-s_start:      DB "ENTER OR SPACE - START",0
-s_keys:       DB "QAOP-MOVE  SPACE-FIRE  E-END",0
-s_orig:       DB "ORIGINAL (C) 2001 GAMEDESIGN",0
-s_remake:     DB "ZX SPECTRUM 128 REMAKE, 2026",0
-s_generating: DB "GENERATING MAP...",0
-s_playmap:    DB "PLAY THIS MAP?  Y-YES  N-NO",0
-s_pick:       DB "PICK YOUR AREA    E-END TURN",0
-s_attack:     DB "NOW PICK AN ENEMY NEIGHBOUR",0
-s_thinking:   DB "THINKING...",0
-s_battle:     DB "BATTLE!",0
-s_captured:   DB "AREA CAPTURED!",0
-s_failed:     DB "ATTACK FAILED",0
-s_supply:     DB "GETS REINFORCEMENTS",0
-s_anykey:     DB "PRESS ANY KEY",0
-s_gameover:   DB "GAME OVER",0
-s_youwin:     DB "YOU WIN",0
-s_pwins:      DB "PLAYER 1 WINS",0

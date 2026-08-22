@@ -38,6 +38,14 @@ and held ~8s); thumbs-up backs YOU WIN / PLAYER n WINS, the sad face
 backs GAME OVER, both with banners overlaid. All three verified in the
 emulator.
 
+## Russian localisation (same day)
+
+All texts moved to src/res/text/strings.txt (UTF-8) + text_gen.py;
+32 Cyrillic glyphs added to font8.txt (11 as aliases of Latin shapes);
+font/encoding extended to codes 96..127. Title is now «ВОЙНА КУБИКОВ»,
+player tags «И1»..«И8». Verified in-emulator: splash, title, preview,
+turn messages, win banner.
+
 ## Possible future work
 
 - Kempston/Sinclair joystick support.

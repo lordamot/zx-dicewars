@@ -32,3 +32,8 @@ A_HUDDIM    EQU %00000001          ; blue-on-black (dim decoration)
 A_TITLE     EQU %01000111          ; bright white on black
 A_SELECT    EQU %01000110          ; bright yellow on black (menu highlight)
 FLASH_BIT   EQU %10000000
+
+; --- game text encoding ----------------------------------------------------
+; 32..95 = ASCII, 96..127 = А..Я (see tools/text_gen.py / font_gen.py)
+CH_PLAYER   EQU 96+8               ; 'И' - the player tag ("И1".."И8")
+LOGO_CELLS  EQU 26                 ; the logo is 13 double-size chars wide

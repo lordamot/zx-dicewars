@@ -24,9 +24,10 @@ code_start:
     INCLUDE "battle.asm"
     INCLUDE "music.asm"
 
-    ; generated resources (font_gen.py / music_gen.py)
+    ; generated resources (font_gen.py / music_gen.py / text_gen.py)
     INCLUDE "../../build/font8.asm"
     INCLUDE "../../build/tune.asm"
+    INCLUDE "../../build/strings.asm"
 
     ; the endgame photos (bmp2zx.py from src/res/screens/*.bmp); the
     ; loading screen is a separate disk file, not part of this block

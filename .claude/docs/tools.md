@@ -31,6 +31,14 @@ for the 1.77MHz 128K clock, A-4 = 440Hz) and `song_a/b/c` byte streams
 (0 keep, 1 release, note+2, #FF loop). The player is
 `src/game/music.asm`.
 
+### text_gen.py
+
+`src/res/text/strings.txt` (UTF-8, `label|text` lines) ->
+`build/strings.asm` (`s_<label>` DB rows). Game text encoding: 32..95 =
+ASCII, 96..127 = А..Я in alphabet order (Ё -> Е, lowercase uppercased).
+The font table from font_gen.py covers the same 96 codes; trailing
+spaces in strings are preserved (used to overprint longer values).
+
 ### game_state.py
 
 Read the live game state (areas, owners, dice, centers, adjacency,

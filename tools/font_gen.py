@@ -5,11 +5,15 @@ Usage:
     font_gen.py src/res/font/font8.txt --out build/font8.asm [--force]
 
 Input format (see src/res/font/font8.txt): "char X" where X is a literal
-character or a name (space, dice1..dice8), followed by 8 rows of 8 columns,
-'#' = ink pixel, '.' = empty.
+character (ASCII or Cyrillic) or a name (space, dice1..dice8), followed
+by 8 rows of 8 columns, '#' = ink pixel, '.' = empty. "alias X Y" makes
+character X reuse Y's glyph (for Cyrillic letters shaped like Latin).
 
 Output: an .asm file with two labels:
-    font8:    64 glyphs of 8 bytes, ASCII 32..95 (undrawn chars are blank)
+    font8:    96 glyphs of 8 bytes, game text codes 32..127:
+              32..95  = ASCII (undrawn chars are blank),
+              96..127 = Cyrillic А..Я (no Ё) - see tools/text_gen.py,
+              which encodes UTF-8 strings into these codes.
     dicefont: 8 glyphs, the bold digits 1..8 for dice counts on the map.
 """
 
@@ -18,17 +22,30 @@ import sys
 from pathlib import Path
 
 NAMED = {"space": " "}
-FIRST, LAST = 32, 95  # ASCII range covered by font8
+FIRST, LAST = 32, 127
+CYR_ORDER = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"  # codes 96..127
+
+
+def code_char(code):
+    """The character a font code renders (for table comments/lookup)."""
+    if code < 96:
+        return chr(code)
+    return CYR_ORDER[code - 96]
 
 
 def parse(path):
     glyphs = {}   # key: char or "diceN" -> [8 ints]
+    aliases = []  # (new, existing)
     lines = path.read_text().splitlines()
     i = 0
     while i < len(lines):
         line = lines[i].strip()
         i += 1
-        if not line or line.startswith("#") and not line.startswith("char "):
+        if line.startswith("alias "):
+            parts = line.split()
+            if len(parts) != 3:
+                sys.exit(f"error: bad alias line {line!r}")
+            aliases.append((parts[1], parts[2]))
             continue
         if not line.startswith("char "):
             continue
@@ -48,6 +65,12 @@ def parse(path):
         if key in glyphs:
             sys.exit(f"error: glyph {name!r} defined twice")
         glyphs[key] = rows
+    for new, src in aliases:
+        if src not in glyphs:
+            sys.exit(f"error: alias {new!r}: no glyph {src!r}")
+        if new in glyphs:
+            sys.exit(f"error: alias {new!r} shadows a drawn glyph")
+        glyphs[new] = glyphs[src]
     return glyphs
 
 
@@ -57,10 +80,11 @@ def emit(glyphs):
 
     out.append("font8:")
     for code in range(FIRST, LAST + 1):
-        ch = chr(code)
+        ch = code_char(code)
         rows = glyphs.get(ch, [0] * 8)
         label = "space" if ch == " " else ch
-        out.append("    DB " + ",".join(f"#{r:02X}" for r in rows) + f"  ; '{label}'")
+        out.append("    DB " + ",".join(f"#{r:02X}" for r in rows)
+                   + f"  ; {code} '{label}'")
 
     out.append("")
     out.append("dicefont:")

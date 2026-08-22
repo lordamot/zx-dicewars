@@ -44,7 +44,7 @@ msg_player:
     ld c,0
     ld d,2
     call fill_attr
-    ld a,'P'
+    ld a,CH_PLAYER                 ; 'И' - "И1".."И8" player tags
     ld b,ROW_MSG
     ld c,0
     call print_char
@@ -160,7 +160,7 @@ draw_player_row:
     jr nc,.next
     call pr_slot_col
     ld b,ROW_HUD1
-    ld a,'P'
+    ld a,CH_PLAYER
     call print_char
     inc c
     ld a,(pr_pn)

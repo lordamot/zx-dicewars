@@ -1,0 +1,38 @@
+# DiceWars ZX - all game texts, UTF-8, one per line: label|text
+# Compiled by tools/text_gen.py into build/strings.asm (s_<label>).
+# The game's own encoding covers ASCII 32..95 + Cyrillic А..Я (no Ё),
+# so Latin keeps working for key names and credits.
+#
+# Watch the widths: the screen is 32 columns; messages with the player
+# tag start at column 3 (max 29 chars), double-size banners take
+# 2 columns per char.
+
+logo|ВОЙНА КУБИКОВ
+
+# title menu (labels are 22 chars so the values line up at column 26)
+players|ИГРОКОВ (КЛАВИШИ 2-8):
+humans|ЛЮДЕЙ   (КЛАВИША H)  :
+music|МУЗЫКА  (КЛАВИША S)  :
+on|ВКЛ 
+off|ВЫКЛ
+start|ENTER ИЛИ ПРОБЕЛ - СТАРТ
+keys|QAOP-ХОД ПРОБЕЛ-ВЫБОР E-КОНЕЦ
+orig|ОРИГИНАЛ (C) 2001 GAMEDESIGN
+remake|ZX SPECTRUM 128 РЕМЕЙК, 2026
+
+# in game
+generating|ГЕНЕРАЦИЯ КАРТЫ...
+playmap|ИГРАТЬ ЭТУ КАРТУ?  Y-ДА N-НЕТ
+pick|ВЫБЕРИ ОБЛАСТЬ. E-КОНЕЦ ХОДА
+attack|ТЕПЕРЬ ВЫБЕРИ СОСЕДА ВРАГА
+thinking|ДУМАЮ...
+battle|БИТВА!
+captured|ОБЛАСТЬ ЗАХВАЧЕНА!
+failed|АТАКА ОТБИТА
+supply|ПОЛУЧАЕТ ПОДКРЕПЛЕНИЯ
+anykey|НАЖМИ ЛЮБУЮ КЛАВИШУ
+
+# endgame banners (double-size)
+gameover|ИГРА ОКОНЧЕНА
+youwin|ТЫ ПОБЕДИЛ
+pwins|ИГРОК 1 ПОБЕДИЛ

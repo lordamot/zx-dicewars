@@ -58,6 +58,8 @@ def main():
          "--out", str(build / "font8.asm"), "--force"])
     run([sys.executable, "tools/music_gen.py", "src/music/tune.txt",
          "--out", str(build / "tune.asm"), "--force"])
+    run([sys.executable, "tools/text_gen.py", "src/res/text/strings.txt",
+         "--out", str(build / "strings.asm"), "--force"])
 
     # 3: the photo screens (BMP source art -> ZX screen bytes)
     for name in ("startscreen", "youwin", "gameover"):

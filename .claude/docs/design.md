@@ -82,6 +82,17 @@ Bugs of this shape were already found and fixed - keep them in mind:
 - `bat_anim` with `an_count = 0` would loop the die index 256 times -
   callers guarantee count >= 1 (an area always has at least 1 die).
 
+## Text and encoding
+
+All strings are UTF-8 Russian in src/res/text/strings.txt, compiled by
+text_gen.py into the game's encoding: 32..95 ASCII, 96..127 = А..Я
+alphabet order (no Ё). font8.txt draws both alphabets (Cyrillic letters
+shaped like Latin ones are `alias` entries). Layout constraints live as
+comments in strings.txt: 32 columns, tagged messages start at column 3
+(<= 29 chars), banners take 2 columns per char. The player tag is
+"И1".."И8" (CH_PLAYER in const.asm). The logo is 13 chars = 26 cells
+(LOGO_CELLS).
+
 ## Photo screens
 
 Three digitized photos (from `orig/*.jpg`, the author at his bench):

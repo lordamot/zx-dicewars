@@ -17,6 +17,11 @@ make build    # src/ -> build/dicewars.trd
 make run      # build it, launch the bundled ZEsarUX, boot TR-DOS, RUN it
 ```
 
+The game speaks Russian («ВОЙНА КУБИКОВ»): every string lives in
+`src/res/text/strings.txt` (UTF-8), compiled by `tools/text_gen.py` into
+the game's own encoding (ASCII 32..95 + Cyrillic А..Я at 96..127, no Ё),
+and the hand-drawn font covers both alphabets.
+
 Everything on the disk is generated from readable source: Z80 assembly for
 sjasmplus, a UTF-8 BASIC loader, a hand-drawn text-bitmap font and a text
 tracker score. No binaries live in `src/`.
@@ -77,7 +82,9 @@ src/
     random.asm               xorshift PRNG
     const/vars/bss.asm       constants, state, work buffers
   music/tune.txt           the soundtrack as a text tracker score
-  res/font/font8.txt       the 8x8 font as text bitmaps ('#' = pixel)
+  res/text/strings.txt     all game texts, UTF-8 Russian
+  res/font/font8.txt       the 8x8 font as text bitmaps ('#' = pixel),
+                           Latin + Cyrillic
   res/screens/*.bmp        the photo screens, 256x192 source art
                            (prepared from orig/*.jpg via `make screens`)
 orig/                      the original photos, as taken
@@ -95,7 +102,8 @@ build/                     output (gitignored)
    `#`/`.` pixel art) into `build/font8.asm`.
 2. `music_gen.py` compiles `src/music/tune.txt` (edit notes as `A-2`,
    `C#4`, per-row per-channel) into the AY period table and three song
-   streams in `build/tune.asm`.
+   streams in `build/tune.asm`; `text_gen.py` compiles the UTF-8
+   strings into the game encoding.
 3. `bmp2zx.py` converts the three `src/res/screens/*.bmp` photos into
    ZX screen bytes (Floyd dithering, attribute-clash handling).
 4. `basic_tokenize.py` turns the BASIC text into tokenized bytes plus the
@@ -119,6 +127,7 @@ the photos or crops change.
 | `build_dicewars.py` | the whole pipeline: sources -> bootable `.trd` |
 | `font_gen.py` | text-bitmap font -> `.asm` |
 | `music_gen.py` | text tracker score -> AY note table + song data `.asm` |
+| `text_gen.py` | UTF-8 game strings -> game-encoding `.asm` (Cyrillic at 96..127) |
 | `game_state.py` | dump the live game state out of emulated RAM (symbol table + ZRCP) |
 | `photo2bmp.py` | crop/resize a photo to 256x192 and pre-process it for 1-bit dithering (Pillow) |
 | `bmp2zx.py` | BMP -> ZX screen bytes with dithering and attribute handling *(from zx-openit)* |
