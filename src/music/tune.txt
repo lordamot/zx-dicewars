@@ -1,0 +1,133 @@
+# DiceWars ZX theme - text tracker score for the custom AY player.
+#
+# Compiled by tools/music_gen.py into build/tune.asm (three per-channel
+# byte streams + the AY note period table). Player: src/game/music.asm.
+#
+# Syntax:
+#   tempo N          frames per row (50 Hz frames)
+#   pattern NAME     starts a pattern; each following non-blank line is one
+#                    row of three cells: channel A (bass), B (arpeggio),
+#                    C (lead).  Cell = note ("A-2", "C#4"), "---" = keep
+#                    ringing, "off" = release.
+#   order N1 N2 ...  pattern playback order; the song loops from the start.
+#
+# The tune: a 8-bar loop in A minor, Am / F / C / G, then Am / F / E / E.
+# ~107 BPM at 4 rows per beat.
+
+tempo 7
+
+# --- bar: A minor ---
+pattern am
+A-1 A-3 E-4
+--- C-4 ---
+--- E-4 C-4
+--- A-4 ---
+A-2 A-3 A-4
+--- C-4 ---
+--- E-4 ---
+--- A-4 ---
+A-1 A-3 C-5
+--- C-4 B-4
+--- E-4 A-4
+--- A-4 ---
+E-2 A-3 G-4
+--- C-4 ---
+--- E-4 A-4
+--- A-4 ---
+
+# --- bar: F major ---
+pattern f
+F-1 F-3 F-4
+--- A-3 ---
+--- C-4 E-4
+--- F-4 ---
+F-2 F-3 A-4
+--- A-3 ---
+--- C-4 ---
+--- F-4 ---
+F-1 F-3 C-5
+--- A-3 ---
+--- C-4 A-4
+--- F-4 ---
+C-2 F-3 G-4
+--- A-3 ---
+--- C-4 E-4
+--- F-4 ---
+
+# --- bar: C major ---
+pattern c
+C-2 G-3 E-4
+--- C-4 ---
+--- E-4 G-4
+--- G-4 ---
+C-2 G-3 C-5
+--- C-4 ---
+--- E-4 G-4
+--- G-4 ---
+G-1 G-3 E-4
+--- C-4 D-4
+--- E-4 C-4
+--- G-4 ---
+C-2 G-3 D-4
+--- C-4 ---
+--- E-4 E-4
+--- G-4 ---
+
+# --- bar: G major ---
+pattern g
+G-1 G-3 D-4
+--- B-3 ---
+--- D-4 B-3
+--- G-4 ---
+G-2 G-3 G-4
+--- B-3 ---
+--- D-4 ---
+--- G-4 ---
+G-1 G-3 B-4
+--- B-3 A-4
+--- D-4 G-4
+--- G-4 ---
+D-2 G-3 A-4
+--- B-3 ---
+--- D-4 B-4
+--- G-4 ---
+
+# --- bar: A minor, answer phrase ---
+pattern am2
+A-1 A-3 A-4
+--- C-4 ---
+--- E-4 E-4
+--- A-4 ---
+A-2 A-3 C-5
+--- C-4 ---
+--- E-4 A-4
+--- A-4 ---
+A-1 A-3 E-5
+--- C-4 D-5
+--- E-4 C-5
+--- A-4 ---
+E-2 A-3 B-4
+--- C-4 ---
+--- E-4 C-5
+--- A-4 ---
+
+# --- bar: E major turnaround ---
+pattern e
+E-1 E-3 B-4
+--- G#3 ---
+--- B-3 G#4
+--- E-4 ---
+E-2 E-3 E-4
+--- G#3 ---
+--- B-3 G#4
+--- E-4 ---
+E-1 E-3 B-3
+--- G#3 ---
+--- B-3 D-4
+--- E-4 ---
+B-1 E-3 E-4
+--- G#3 off
+--- B-3 ---
+--- E-4 ---
+
+order am f c g am2 f e e
