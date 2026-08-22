@@ -28,6 +28,16 @@
 - Map generation took 6.3s; frontier list (fr_list) for percolation's
   min-search cut it to 2.3s.
 
+## Photo screens (same day, later)
+
+The operator dropped three photos into orig/ (a toast, a thumbs-up, a
+sad face): now converted to 1-bit Floyd-dithered ZX screens
+(photo2bmp.py + bmp2zx.py). The toast is a real TR-DOS loading screen
+(own disk file, shown while the game loads, then branded with the logo
+and held ~8s); thumbs-up backs YOU WIN / PLAYER n WINS, the sad face
+backs GAME OVER, both with banners overlaid. All three verified in the
+emulator.
+
 ## Possible future work
 
 - Kempston/Sinclair joystick support.

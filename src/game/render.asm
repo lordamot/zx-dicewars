@@ -537,6 +537,15 @@ area_flash_off:
     jr nz,.loop
     ret
 
+; --- full-screen pictures --------------------------------------------------
+
+; copy a 6912-byte screen (pixels + attributes) to the display
+show_scr:
+    ld de,SCREEN
+    ld bc,6912
+    ldir
+    ret
+
 ; --- cursor ----------------------------------------------------------------
 
 ; XOR the cursor frame into the cell at (cursor_row, cursor_col);

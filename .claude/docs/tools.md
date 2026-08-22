@@ -40,8 +40,20 @@ Run it for a dump, or import it (`state()`, `moves_to()`,
 `plan_attack()`) from test scripts. `--port` selects the emulator
 instance.
 
+### photo2bmp.py
+
+Asset preparation for the photo screens (the one tool needing Pillow;
+not part of `make build`): crop a photo full-width from `--top`, resize
+to 256x192, grayscale + autocontrast + unsharp mask + gamma - tuned so
+faces survive Floyd dithering. `make screens` runs it for the three
+photos in `orig/`; the resulting `src/res/screens/*.bmp` are the
+committed source art.
+
 ## Copied from ../zx-openit (see its docs for the full story)
 
+- `bmp2zx.py` - BMP -> ZX screen bytes (15-colour reduction, 2-per-cell
+  attribute rule, `--dither floyd/bayer`), used at build time for the
+  three photo screens.
 - `trd_build.py` / `trd_unpack.py` / `trdlib.py` - TR-DOS images.
 - `basic_tokenize.py` / `basic_detokenize.py` / `basiclib.py` - ZX BASIC
   text <-> tokenized bytes (supports `\xNN` escapes for token bytes).

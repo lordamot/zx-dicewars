@@ -7,13 +7,16 @@ Usage:
 Steps:
     1. tools/font_gen.py   src/res/font/font8.txt -> build/font8.asm
     2. tools/music_gen.py  src/music/tune.txt     -> build/tune.asm
-    3. tools/basic_tokenize.py src/basic/boot.bas.txt -> build/boot.B.bin
+    3. tools/bmp2zx.py     src/res/screens/*.bmp  -> build/*.scr
+       (startscreen = the loading screen, its own disk file; youwin and
+       gameover are INCBIN-ed into the game)
+    4. tools/basic_tokenize.py src/basic/boot.bas.txt -> build/boot.B.bin
        (plus the TR-DOS autostart trailer #80 #AA <line>)
-    4. bin/sjasmplus assembles src/game/dicewars.asm -> build/dicewars.bin
-    5. tools/trd_build.py packs boot.B + dicewars.C -> the .trd
+    5. bin/sjasmplus assembles src/game/dicewars.asm -> build/dicewars.bin
+    6. tools/trd_build.py packs boot.B + screen.C + dicewars.C -> the .trd
 
-The resulting disk boots with TR-DOS's RUN (loads "boot", which CLEARs,
-loads the CODE at #6000 and jumps to it).
+The resulting disk boots with TR-DOS's RUN: "boot" CLEARs, shows the
+loading screen (CODE at #4000), loads the game CODE at #6000, jumps in.
 """
 
 import argparse
@@ -56,7 +59,12 @@ def main():
     run([sys.executable, "tools/music_gen.py", "src/music/tune.txt",
          "--out", str(build / "tune.asm"), "--force"])
 
-    # 3: the BASIC loader (tokenized program + autostart trailer)
+    # 3: the photo screens (BMP source art -> ZX screen bytes)
+    for name in ("startscreen", "youwin", "gameover"):
+        run([sys.executable, "tools/bmp2zx.py", f"src/res/screens/{name}.bmp",
+             "--scr", str(build / f"{name}.scr"), "--dither", "floyd", "--force"])
+
+    # 4: the BASIC loader (tokenized program + autostart trailer)
     res = subprocess.run(
         [sys.executable, "tools/basic_tokenize.py", "src/basic/boot.bas.txt"],
         cwd=ROOT, capture_output=True)
@@ -67,13 +75,13 @@ def main():
     (build / "boot.B.bin").write_bytes(body)
     print(f"build/boot.B.bin: {len(program)} bytes of BASIC + autostart trailer")
 
-    # 4: assemble (the symbol table feeds tools/game_state.py)
+    # 5: assemble (the symbol table feeds tools/game_state.py)
     run([str(SJASMPLUS), "--nologo", f"--sym={build}/dicewars.sym",
          "src/game/dicewars.asm"])
     game = (build / "dicewars.bin").read_bytes()
     print(f"build/dicewars.bin: {len(game)} bytes at #{CODE_ORG:04X}")
 
-    # 5: pack the disk
+    # 6: pack the disk
     manifest = {
         "label": "DICEWARS",
         "disk_type": 22,
@@ -81,6 +89,9 @@ def main():
             {"name": "boot", "type": "B",
              "param1": len(program), "length": len(program),
              "file": "boot.B.bin"},
+            {"name": "screen", "type": "C",
+             "param1": 16384, "length": 6912,
+             "file": "startscreen.scr"},
             {"name": "dicewars", "type": "C",
              "param1": CODE_ORG, "length": len(game),
              "file": "dicewars.bin"},

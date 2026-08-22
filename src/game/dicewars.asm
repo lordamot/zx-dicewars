@@ -28,6 +28,13 @@ code_start:
     INCLUDE "../../build/font8.asm"
     INCLUDE "../../build/tune.asm"
 
+    ; the endgame photos (bmp2zx.py from src/res/screens/*.bmp); the
+    ; loading screen is a separate disk file, not part of this block
+scr_youwin:
+    INCBIN "../../build/youwin.scr"
+scr_gameover:
+    INCBIN "../../build/gameover.scr"
+
 code_end:
 
     INCLUDE "bss.asm"

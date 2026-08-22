@@ -11,6 +11,7 @@ start:
     call music_init
     call ay_mute
     ei
+    call splash_hold               ; the loading screen is still on display
 main_loop:
     call title_screen
     call preview
@@ -55,41 +56,9 @@ title_screen:
     call mem_fill                  ; readable text everywhere by default
 
     ; big logo, each letter in its own bright colour
-    ld hl,s_logo
     ld b,1
     ld c,7
-    call print_str2x
-    ld b,1
-.lrow:
-    ld c,7
-.lcol:
-    ld a,c
-    sub 7
-    srl a                          ; letter index
-.mod6:
-    cp 6
-    jr c,.ink
-    sub 6
-    jr .mod6
-.ink:
-    ld e,a
-    ld d,0
-    ld hl,ink_cycle
-    add hl,de
-    ld a,(hl)
-    or %01000000
-    push bc
-    ld d,1
-    call fill_attr
-    pop bc
-    inc c
-    ld a,c
-    cp 25
-    jr nz,.lcol
-    inc b
-    ld a,b
-    cp 3
-    jr nz,.lrow
+    call draw_logo
 
     ; a row of dice showing the eight player colours
     ld e,0
@@ -627,33 +596,163 @@ com_turn:
     call msg_player
     jr .loop
 
-; --- endgame screens -------------------------------------------------------
+; --- the photo screens (splash, win, game over) ----------------------------
 
 ge_attr: DB 0
+ge_row:  DB 0
+ge_col:  DB 0
+ge_len:  DB 0
+sp_timer: DW 0
+
+; the "DICE WARS" logo: double-size text at B=top row, C=left col, each
+; letter in its own bright colour on black cells (shared by the title
+; screen and the loading-screen splash)
+draw_logo:
+    ld a,b
+    ld (ge_row),a
+    ld a,c
+    ld (ge_col),a
+    push bc
+    ld hl,s_logo
+    call print_str2x
+    pop bc
+.lrow:
+    ld a,(ge_col)
+    ld c,a
+    ld e,0                         ; cell index within the logo
+.lcol:
+    ld a,e
+    srl a                          ; letter index
+.mod6:
+    cp 6
+    jr c,.ink
+    sub 6
+    jr .mod6
+.ink:
+    push de
+    ld e,a
+    ld d,0
+    ld hl,ink_cycle
+    add hl,de
+    ld a,(hl)
+    or %01000000
+    pop de
+    push bc
+    push de
+    ld d,1
+    call fill_attr
+    pop de
+    pop bc
+    inc c
+    inc e
+    ld a,e
+    cp 18
+    jr nz,.lcol
+    inc b
+    ld a,(ge_row)
+    add a,2
+    cp b
+    jr nz,.lrow
+    ret
+
+; double-size banner: text HL at B=top row, C=left col, attribute A
+; (black paper + the caller's ink) over both banner cell rows
+banner2x:
+    ld (ge_attr),a
+    ld a,b
+    ld (ge_row),a
+    ld a,c
+    ld (ge_col),a
+    push hl                        ; measure the text
+    ld d,0
+.len:
+    ld a,(hl)
+    or a
+    jr z,.lend
+    inc hl
+    inc d
+    jr .len
+.lend:
+    sla d                          ; cells = 2 * chars
+    ld a,d
+    ld (ge_len),a
+    pop hl
+    call print_str2x
+    ld a,(ge_row)
+    ld b,a
+    ld a,(ge_col)
+    ld c,a
+    ld a,(ge_len)
+    ld d,a
+    ld a,(ge_attr)
+    call fill_attr
+    ld a,(ge_row)
+    inc a
+    ld b,a
+    ld a,(ge_col)
+    ld c,a
+    ld a,(ge_len)
+    ld d,a
+    ld a,(ge_attr)
+    jp fill_attr
+
+; caption bar on the bottom row: "PRESS ANY KEY" over the photo
+splash_prompt:
+    ld b,23
+    call clear_pixrow
+    ld b,23
+    ld c,0
+    ld d,32
+    ld a,A_HUDTEXT
+    call fill_attr
+    ld hl,s_anykey
+    ld b,23
+    ld c,9
+    jp print_str
+
+; hold the loading screen (already at #4000, put there by the BASIC
+; loader): brand it with the logo and wait for a key or ~8 seconds
+splash_hold:
+    ld b,0
+    ld c,0
+    call draw_logo
+    call splash_prompt
+    ld hl,400
+    ld (sp_timer),hl
+.wait:
+    call wait_frame
+    ld a,(key_new)
+    ld d,a
+    ld a,(key2_new)
+    or d
+    ret nz
+    ld hl,(sp_timer)
+    dec hl
+    ld (sp_timer),hl
+    ld a,h
+    or l
+    jr nz,.wait
+    ret
 
 game_over_screen:
     ld a,3
     call sfx_play
+    ld hl,scr_gameover
+    call show_scr
     ld hl,s_gameover
-    ld b,9
+    ld b,0
     ld c,7
-    call print_str2x
     ld a,%01000010                 ; bright red ink
-    ld b,9
-    ld c,7
-    ld d,18
-    call fill_attr
-    ld a,%01000010
-    ld b,10
-    ld c,7
-    ld d,18
-    call fill_attr
+    call banner2x
+    call splash_prompt
     jp wait_anykey
 
 win_screen:
     ld a,5
     call sfx_play
-    ; banner text and its ink = the winner's colour
+    ld hl,scr_youwin
+    call show_scr
+    ; banner ink = the winner's colour
     ld a,(winner)
     call player_attr_of
     rra
@@ -661,53 +760,34 @@ win_screen:
     rra
     and 7
     or %01000000
-    ld (ge_attr),a
+    ld e,a
     ld a,(humans)
     cp 2
     jr nc,.named
     ld hl,s_youwin
-    ld b,9
+    ld b,0
     ld c,9
-    call print_str2x
-    ld c,9
-    ld d,14
-    jr .attr
+    ld a,e
+    call banner2x
+    jr .prompt
 .named:
     ld a,(winner)
     add a,'1'
     ld (s_pwins+7),a
     ld hl,s_pwins
-    ld b,9
+    ld b,0
     ld c,3
-    call print_str2x
-    ld c,3
-    ld d,26
-.attr:
-    ld a,c
-    ld (ge_col),a
-    ld a,d
-    ld (ge_len),a
-    ld a,(ge_attr)
-    ld b,9
-    call fill_attr
-    ld a,(ge_col)
-    ld c,a
-    ld a,(ge_len)
-    ld d,a
-    ld a,(ge_attr)
-    ld b,10
-    call fill_attr
+    ld a,e
+    call banner2x
+.prompt:
+    call splash_prompt
     jp wait_anykey
 
-ge_col: DB 0
-ge_len: DB 0
-
-; short pause, then wait for a fresh keypress (with all keys released first)
+; short pause, then wait for a fresh keypress (with all keys released
+; first); the caller draws its own prompt
 wait_anykey:
     ld b,30
     call wait_frames
-    ld hl,s_anykey
-    call msg_print
 .release:
     call wait_frame
     ld a,(key_state)

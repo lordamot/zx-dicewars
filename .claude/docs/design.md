@@ -82,6 +82,26 @@ Bugs of this shape were already found and fixed - keep them in mind:
 - `bat_anim` with `an_count = 0` would loop the die index 256 times -
   callers guarantee count >= 1 (an area always has at least 1 die).
 
+## Photo screens
+
+Three digitized photos (from `orig/*.jpg`, the author at his bench):
+
+- `screen`<C> on disk = the loading screen, loaded straight to #4000 by
+  the BASIC loader before the game CODE, so it shows during the load.
+  After init, `splash_hold` brands it (draw_logo at 0,0 + the prompt
+  bar) and waits for a key or ~8s.
+- `scr_youwin` / `scr_gameover` are INCBIN-ed into the game;
+  `win_screen` / `game_over_screen` blit them (`show_scr`) and overlay a
+  `banner2x` (double-size text, black cells, coloured ink - the winner's
+  colour / bright red) on rows 0-1 plus the row-23 prompt bar.
+
+Conversion pipeline: `photo2bmp.py` (crop to 4:3, resize 256x192,
+grayscale, autocontrast, **unsharp mask radius 3 / 220%** - this is what
+makes faces survive the dither - gamma 0.8) then `bmp2zx.py --dither
+floyd`. Colour versions were tried and rejected: skin maps to blotchy
+red/yellow attribute patches; 1-bit Floyd is the classic ZX digitized
+look (openit's prize photos are the same style).
+
 ## Timing
 
 Map generation is ~2s (Pentagon 3.5MHz): random priorities, ~31

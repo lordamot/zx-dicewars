@@ -51,6 +51,7 @@ tracker score. No binaries live in `src/`.
 | battle animation | 3D dice tumbling in | each die flickers through random faces and settles left-to-right with an AY noise click, then the totals appear |
 | sound | mp3 samples | a 3-channel AY-3-8912 pattern player (bass / arpeggio / lead, A-minor loop) + effects on channel C |
 | history replay | yes | dropped (out of scope for 48K of code + buffers) |
+| photo screens | — | three digitized photos (Floyd-dithered 1-bit, unsharp-masked so faces survive 256x192): a classic TR-DOS **loading screen** (cheers!), a **YOU WIN** thumbs-up and a **GAME OVER** face, with banners overlaid by the game |
 
 The map generator is the same algorithm cell-for-cell: shuffled random
 priorities drive percolation growth of up to 31 areas, the leftover
@@ -77,6 +78,9 @@ src/
     const/vars/bss.asm       constants, state, work buffers
   music/tune.txt           the soundtrack as a text tracker score
   res/font/font8.txt       the 8x8 font as text bitmaps ('#' = pixel)
+  res/screens/*.bmp        the photo screens, 256x192 source art
+                           (prepared from orig/*.jpg via `make screens`)
+orig/                      the original photos, as taken
 tools/                     standalone CLI tools (below)
 bin/                       sjasmplus + ZEsarUX, prebuilt (from ../zx-openit)
 build/                     output (gitignored)
@@ -92,12 +96,21 @@ build/                     output (gitignored)
 2. `music_gen.py` compiles `src/music/tune.txt` (edit notes as `A-2`,
    `C#4`, per-row per-channel) into the AY period table and three song
    streams in `build/tune.asm`.
-3. `basic_tokenize.py` turns the BASIC text into tokenized bytes plus the
+3. `bmp2zx.py` converts the three `src/res/screens/*.bmp` photos into
+   ZX screen bytes (Floyd dithering, attribute-clash handling).
+4. `basic_tokenize.py` turns the BASIC text into tokenized bytes plus the
    TR-DOS autostart trailer.
-4. `sjasmplus` assembles the whole game to one CODE block at `#6000`
-   (7.9K); work buffers and the IM2 vector page live above it in RAM.
-5. `trd_build.py` packs `boot`&lt;B&gt; + `dicewars`&lt;C&gt; into a
-   640K TR-DOS image. Typing `RUN` in TR-DOS boots it.
+5. `sjasmplus` assembles the game (+ the two embedded endgame screens)
+   to one CODE block at `#6000` (~21K); work buffers and the IM2 vector
+   page live above it in RAM.
+6. `trd_build.py` packs `boot`&lt;B&gt; + `screen`&lt;C&gt; (the loading
+   screen, loaded straight to #4000 by the BASIC loader) +
+   `dicewars`&lt;C&gt; into a 640K TR-DOS image. Typing `RUN` in TR-DOS
+   boots it.
+
+The photo screens' BMPs are committed source; regenerating them from
+`orig/*.jpg` (`make screens`, uses `photo2bmp.py`) is only needed when
+the photos or crops change.
 
 ## Tools
 
@@ -107,6 +120,8 @@ build/                     output (gitignored)
 | `font_gen.py` | text-bitmap font -> `.asm` |
 | `music_gen.py` | text tracker score -> AY note table + song data `.asm` |
 | `game_state.py` | dump the live game state out of emulated RAM (symbol table + ZRCP) |
+| `photo2bmp.py` | crop/resize a photo to 256x192 and pre-process it for 1-bit dithering (Pillow) |
+| `bmp2zx.py` | BMP -> ZX screen bytes with dithering and attribute handling *(from zx-openit)* |
 | `trd_build.py` / `trd_unpack.py` | TR-DOS disk images in and out *(from zx-openit)* |
 | `basic_tokenize.py` / `basic_detokenize.py` | ZX BASIC text <-> tokenized bytes *(from zx-openit)* |
 | `zx_control.py` | drive the bundled ZEsarUX: boot a disk, press keys (now with `--held` for per-frame-polling programs), screenshot, read/write memory *(from zx-openit, extended)* |
