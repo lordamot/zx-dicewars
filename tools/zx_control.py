@@ -3,7 +3,7 @@
 ZRCP remote-control protocol.
 
 Usage:
-    zx_control.py launch --trd FILE.trd [--machine Pentagon] [--port 10000] [--window]
+    zx_control.py launch --trd FILE.trd [--machine Pentagon] [--port 10000] [--window] [--audio DRIVER]
     zx_control.py stop [--port 10000]
     zx_control.py status [--port 10000]
     zx_control.py reset [--port 10000]
@@ -166,7 +166,7 @@ def cmd_launch(args):
         "--enable-trd", "--trd-file", str(trd_path),
         "--enable-remoteprotocol", "--remoteprotocol-port", str(args.port),
         "--vo", "xwindows" if args.window else "null",
-        "--ao", "null",
+        "--ao", args.audio or ("sdl" if args.window else "null"),
     ]
     STATE_DIR.mkdir(parents=True, exist_ok=True)
     log_path = STATE_DIR / f"{args.port}.log"
@@ -288,6 +288,8 @@ def main():
     p.add_argument("--trd", required=True)
     p.add_argument("--machine", default="Pentagon")
     p.add_argument("--window", action="store_true", help="show a visible window (default: headless)")
+    p.add_argument("--audio", choices=["pulse", "alsa", "sdl", "dsp", "onebitspeaker", "null"],
+                   help="audio driver (default: sdl with --window, null headless)")
     p.set_defaults(func=cmd_launch)
 
     p = sub.add_parser("stop")
