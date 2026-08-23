@@ -7,7 +7,10 @@
 #   dicefont: 8 bold digits 1..8 used for dice counts on the map.
 # Glyph style: 6 px wide (cols 0-5), 7 px tall (rows 0-6); col 6-7 and
 # row 7 stay empty so text has natural spacing. Dice digits are bolder
-# (2 px strokes) and may use the full 8x8 box.
+# (2 px strokes) but stay inside rows 1-6 / cols 1-6: map cells draw
+# their area border lines on the outermost pixel rows/columns, and a
+# digit that touches them melts into the border (unreadable when the
+# player's ink matches the border colour, e.g. white-on-green).
 
 char space
 ........
@@ -482,9 +485,9 @@ char Z
 # --- bold dice-count digits (drawn inside a map cell) ---
 
 char dice1
+........
 ...##...
 ..###...
-...##...
 ...##...
 ...##...
 ...##...
@@ -492,68 +495,68 @@ char dice1
 ........
 
 char dice2
-.#####..
-##...##.
+........
+..####..
+.##..##.
 ....##..
 ...##...
 ..##....
-.##.....
 .######.
 ........
 
 char dice3
-.#####..
-##...##.
-.....##.
+........
 ..####..
+.##..##.
+...###..
 .....##.
-##...##.
-.#####..
+.##..##.
+..####..
 ........
 
 char dice4
+........
 ....##..
 ...###..
 ..#.##..
 .#..##..
-########
-....##..
+.######.
 ....##..
 ........
 
 char dice5
+........
 .######.
 .##.....
 .#####..
 .....##.
-.....##.
-##...##.
-.#####..
+.##..##.
+..####..
 ........
 
 char dice6
+........
 ..####..
 .##.....
 .#####..
-.##..##.
 .##..##.
 .##..##.
 ..####..
 ........
 
 char dice7
+........
 .######.
 .....##.
 ....##..
 ...##...
 ..##....
 ..##....
-..##....
 ........
 
 char dice8
+........
 ..####..
-.##..##.
 .##..##.
 ..####..
 .##..##.

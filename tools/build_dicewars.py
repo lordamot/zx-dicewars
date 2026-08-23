@@ -75,13 +75,16 @@ def main():
     program = res.stdout
     body = program + bytes([0x80, 0xAA, AUTOSTART_LINE & 0xFF, AUTOSTART_LINE >> 8])
     (build / "boot.B.bin").write_bytes(body)
-    print(f"build/boot.B.bin: {len(program)} bytes of BASIC + autostart trailer")
+    print(f"{build / 'boot.B.bin'}: {len(program)} bytes of BASIC + autostart trailer")
 
-    # 5: assemble (the symbol table feeds tools/game_state.py)
+    # 5: assemble (the symbol table feeds tools/game_state.py); the build
+    # dir supplies the generated includes (-i) and receives the SAVEBIN
+    # output (--outprefix), so any --build-dir works
     run([str(SJASMPLUS), "--nologo", f"--sym={build}/dicewars.sym",
+         "-i", str(build), f"--outprefix={build}/",
          "src/game/dicewars.asm"])
     game = (build / "dicewars.bin").read_bytes()
-    print(f"build/dicewars.bin: {len(game)} bytes at #{CODE_ORG:04X}")
+    print(f"{build / 'dicewars.bin'}: {len(game)} bytes at #{CODE_ORG:04X}")
 
     # 6: pack the disk
     manifest = {

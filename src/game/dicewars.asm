@@ -1,7 +1,8 @@
 ; DiceWars ZX - top level. Assemble from the repository root:
-;   bin/sjasmplus/sjasmplus src/game/dicewars.asm
-; (tools/build_dicewars.py does this, after generating build/font8.asm
-; and build/tune.asm from their editable sources.)
+;   bin/sjasmplus/sjasmplus -i build --outprefix=build/ src/game/dicewars.asm
+; (tools/build_dicewars.py does this, after generating font8.asm and
+; tune.asm from their editable sources; the generated-resource dir is
+; passed via -i / --outprefix so a custom --build-dir works too.)
 ;
 ; The whole game is one CODE block loaded at #6000 by the BASIC loader
 ; (src/basic/boot.bas.txt); the scratch buffers after code_end and the
@@ -24,17 +25,18 @@ code_start:
     INCLUDE "battle.asm"
     INCLUDE "music.asm"
 
-    ; generated resources (font_gen.py / music_gen.py / text_gen.py)
-    INCLUDE "../../build/font8.asm"
-    INCLUDE "../../build/tune.asm"
-    INCLUDE "../../build/strings.asm"
+    ; generated resources (font_gen.py / music_gen.py / text_gen.py),
+    ; found via the -i include path (the build dir)
+    INCLUDE "font8.asm"
+    INCLUDE "tune.asm"
+    INCLUDE "strings.asm"
 
     ; the endgame photos (bmp2zx.py from src/res/screens/*.bmp); the
     ; loading screen is a separate disk file, not part of this block
 scr_youwin:
-    INCBIN "../../build/youwin.scr"
+    INCBIN "youwin.scr"
 scr_gameover:
-    INCBIN "../../build/gameover.scr"
+    INCBIN "gameover.scr"
 
 code_end:
 
@@ -45,4 +47,4 @@ bss_end:
     ; IM2 vector page (#FE00)
     ASSERT bss_end < #F000
 
-    SAVEBIN "build/dicewars.bin", code_start, code_end - code_start
+    SAVEBIN "dicewars.bin", code_start, code_end - code_start
